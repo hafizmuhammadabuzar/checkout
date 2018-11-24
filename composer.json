@@ -1,0 +1,19 @@
+{
+    "name": "hafiz/checkout",
+    "description": "payment gateway",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Hafiz MAbuzar",
+            "email": "hafizmabuzar@hotmail.com"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {},
+    "autoload": {
+        "psr-4": {
+            "Hafiz\\Checkout\\": "src/"
+        }
+    }
+}
