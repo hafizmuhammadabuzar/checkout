@@ -1,5 +1,5 @@
 {
-    "name": "hafiz/checkout",
+    "name": "quickcard/checkout",
     "description": "payment gateway",
     "type": "library",
     "license": "MIT",
