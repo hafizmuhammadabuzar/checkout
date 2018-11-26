@@ -13,7 +13,7 @@
     "require": {},
     "autoload": {
         "psr-4": {
-            "Hafiz\\Checkout\\": "src/"
+            "Quickcard\\Checkout\\": "src/"
         }
     }
 }

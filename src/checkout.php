@@ -1,28 +1,68 @@
 <?php
 
-namespace Hafiz\Checkout;
+namespace Quickcard\Checkout;
 
-use Hafiz\Checkout\Payment;
+class Checkout{
 
-class Checkout extends Payment{
+    protected $END_POINT_URL='https://api.quickcard.me/';
+    protected $SANDBOX_END_POINT_URL='https://quickcard.herokuapp.com/';
 
-    // static protected $clientId;
-    // static protected $secretKey;
-    // static protected $token;
+    public function requestToken($client_id, $secret_key){
 
-    public static function requestToken(){
+        $curl = curl_init();
+        curl_setopt_array($curl, array(
+            CURLOPT_RETURNTRANSFER => 1,
+            CURLOPT_URL => $this->SANDBOX_END_POINT_URL.'oauth/token/retrieve',
+            CURLOPT_POST => 1,
+            CURLOPT_POSTFIELDS => array(
+                'client_id' => $client_id,
+                'client_secret' => $secret_key
+            ),
+            CURLOPT_SSL_VERIFYHOST => 0,
+            CURLOPT_SSL_VERIFYPEER => 0,
+        ));
 
-        return [
-            'client_id' => env('CLIENT_ID'),
-            'secret_key' => env('SECRET_KEY')
-        ];
+        $resp = curl_exec($curl);
+        curl_close($curl);
+        $json = json_decode($resp, true);
+        return $json["access_token"];
     }
 
-    public static function requestUser(){
+    public function retrieveData($client_id, $client_secret, $code) {
 
-        $params = self::requestToken();
+        $curl = curl_init();
+        curl_setopt_array($curl, array(
+            CURLOPT_RETURNTRANSFER => 1,
+            CURLOPT_URL => $this->SANDBOX_END_POINT_URL.'oauth/token',
+            CURLOPT_POST => 1,
+            CURLOPT_POSTFIELDS => array(
+                'client_id' => $client_id,
+                'client_secret' => $client_secret,
+                'code' => $code
+            ),
+            CURLOPT_SSL_VERIFYHOST => 0,
+            CURLOPT_SSL_VERIFYPEER => 0,
+        ));
 
-        print_r($params); die;
-    } 
+        $resp = curl_exec($curl);
+        curl_close($curl);
+
+        $json = json_decode($resp, true);
+        return $json;
+    }
+
+    public function requestUser($client_id, $secret_key){
+
+        $access_token = $this->requestToken($client_id, $secret_key);
+
+        if(!empty($access_token)){
+            $res = $this->retrieveData($client_id, $secret_key, $access_token);
+
+            print_r($res); die;
+        }
+        else{
+            die('Invalid Request');
+        }
+    }
     
 }

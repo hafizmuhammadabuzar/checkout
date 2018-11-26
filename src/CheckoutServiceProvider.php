@@ -1,6 +1,6 @@
 <?php
 
-namespace Hafiz\Checkout;
+namespace Quickcard\Checkout;
 
 use Illuminate\Support\ServiceProvider;
 
@@ -23,11 +23,8 @@ class CheckoutServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        $this->app->bind('Hafiz\Checkout\Payment', function ($app) {
+        $this->app->bind('Quickcard\Checkout\Payment', function ($app) {
             return new Payment($app);
-        });
-        $this->app->bind('Hafiz\Checkout\Checkout', function ($app) {
-            return new Checkout($app);
         });
     }
 }
