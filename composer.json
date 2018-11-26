@@ -15,5 +15,12 @@
         "psr-4": {
             "Quickcard\\Checkout\\": "src/"
         }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Quickcard\\Checkout\\CheckoutServiceProvider"
+            ]
+        }
     }
 }
