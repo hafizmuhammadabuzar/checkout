@@ -10,8 +10,9 @@
         }
     ],
     "minimum-stability": "dev",
-    "require": {
-      "quickcard/checkout": "1.0.0"
+    "require": {},
+    "require-dev": {
+        "quickcard/checkout": "1.0.0"
     },
     "autoload": {
         "psr-4": {
