@@ -10,7 +10,7 @@ class Payment{
     protected $secret_key;
     private $checkout;
 
-    public function __construct($client_id='', $secret_key=''){
+    public function __construct($client_id, $secret_key){
 
         $this->client_id = $client_id;
         $this->secret_key = $secret_key;
