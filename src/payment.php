@@ -8,12 +8,13 @@ class Payment{
 
     protected $client_id;
     protected $secret_key;
-    private $checkout;
+    protected $mode;
 
-    public function __construct($client_id, $secret_key){
+    public function __construct($client_id, $secret_key, $mode){
 
         $this->client_id = $client_id;
         $this->secret_key = $secret_key;
+        $this->mode = $mode;
 
         if(empty($this->client_id) && empty($this->secret_key)){
             return false;
@@ -22,7 +23,7 @@ class Payment{
 
     public function requiredParams(){
 
-        return ['phone_number', 'exp_date', 'card_number', 'card_cvv', 'amount', 'email', 'first_name', 'last_name'];
+        return ['phone_number', 'expiry_date', 'card_number', 'card_cvv', 'amount', 'email', 'first_name', 'last_name'];
     }
 
     public function paymentSubmit($params){
@@ -37,10 +38,11 @@ class Payment{
         }
 
         if(count($error) > 0){
-            return ['status' => 'error', 'data' => $error];
+            return ['success' => false, 'message' => 'All fields required', 'data' => $error];
         }
 
-        return checkout::requestPayment($this->client_id, $this->secret_key, $params);
+        new Checkout($this->client_id, $this->secret_key, $this->mode);
+        return checkout::requestPayment($params);
     }
     
 }

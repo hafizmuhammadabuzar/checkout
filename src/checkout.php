@@ -4,9 +4,21 @@ namespace Quickcard\Checkout;
 
 class Checkout{
 
-    static private $END_POINT_URL = 'https://quickcard.herokuapp.com/';
+    static protected $client_id;
+    static protected $secret_key;
+    static protected $mode;
+    static protected $auth_token;
+    static private $END_POINT_URL;
 
-    public static function requestToken($client_id, $secret_key){
+    public function __construct($client_id, $secret_key, $mode){
+
+        self::$client_id = $client_id;
+        self::$secret_key = $secret_key;
+        self::$mode = $mode;
+        self::$mode = ($mode == 'Sandbox') ? 'https://quickcard.herokuapp.com/' : 'https://api.quickcard.me/';
+    }
+
+    public static function requestToken(){
 
         $curl = curl_init();
         curl_setopt_array($curl, array(
@@ -14,8 +26,8 @@ class Checkout{
             CURLOPT_URL => self::$END_POINT_URL.'oauth/token/retrieve',
             CURLOPT_POST => 1,
             CURLOPT_POSTFIELDS => array(
-                'client_id' => $client_id,
-                'client_secret' => $secret_key
+                'client_id' => static::$client_id,
+                'client_secret' => static::$secret_key
             ),
             CURLOPT_SSL_VERIFYHOST => 0,
             CURLOPT_SSL_VERIFYPEER => 0,
@@ -27,7 +39,7 @@ class Checkout{
         return $json["access_token"];
     }
 
-    public static function requestData($client_id, $client_secret, $code) {
+    public static function requestData($code) {
 
         $curl = curl_init();
         curl_setopt_array($curl, array(
@@ -35,8 +47,8 @@ class Checkout{
             CURLOPT_URL => self::$END_POINT_URL.'oauth/token',
             CURLOPT_POST => 1,
             CURLOPT_POSTFIELDS => array(
-                'client_id' => $client_id,
-                'client_secret' => $client_secret,
+                'client_id' => static::$client_id,
+                'client_secret' => static::$secret_key,
                 'code' => $code
             ),
             CURLOPT_SSL_VERIFYHOST => 0,
@@ -50,7 +62,7 @@ class Checkout{
         return $json;
     }
 
-    public static function requestCheckUser($auth_token, $params) {
+    public static function requestCheckUser($params) {
 
         $curl = curl_init();
         curl_setopt_array($curl, array(
@@ -58,7 +70,7 @@ class Checkout{
             CURLOPT_URL => self::$END_POINT_URL.'api/registrations/user_details',
             CURLOPT_POST => 1,
             CURLOPT_POSTFIELDS => array(
-                'auth_token' => $auth_token,
+                'auth_token' => self::$auth_token,
                 'phone_number' => (isset($params['phone_number'])) ? $params['phone_number'] : '',
                 'email' => (isset($params['email'])) ? $params['email'] : ''
             ),
@@ -73,7 +85,7 @@ class Checkout{
         return $json;
     }
 
-    public static function requestNewUser($auth_token, $params) {
+    public static function requestNewUser($params) {
 
         $curl = curl_init();
         curl_setopt_array($curl, array(
@@ -81,7 +93,7 @@ class Checkout{
             CURLOPT_URL => self::$END_POINT_URL.'api/registrations/virtual_new_signup',
             CURLOPT_POST => 1,
             CURLOPT_POSTFIELDS => array(
-                'auth_token' => $auth_token,
+                'auth_token' => static::$auth_token,
                 'wallet_id' => (isset($params['phone_number'])) ? $params['phone_number'] : '',
                 'phone_number' => (isset($params['phone_number'])) ? $params['phone_number'] : '',
                 'exp_date' => (isset($params['exp_date'])) ? $params['exp_date'] : '',
@@ -104,7 +116,7 @@ class Checkout{
         return $json;
     }
 
-    public static function requestExistingUser($auth_token, $params) {
+    public static function requestExistingUser($params) {
 
         $curl = curl_init();
         curl_setopt_array($curl, array(
@@ -112,10 +124,10 @@ class Checkout{
             CURLOPT_URL => self::$END_POINT_URL.'api/registrations/virtual_existing',
             CURLOPT_POST => 1,
             CURLOPT_POSTFIELDS => array(
-                'auth_token' => $auth_token,
-                'wallet_id' => (isset($params['phone_number'])) ? $params['phone_number'] : '',
+                'auth_token' => static::$auth_token,
+                'wallet_id' => (isset($params['wallet_id'])) ? $params['wallet_id'] : '',
                 'phone_number' => (isset($params['phone_number'])) ? $params['phone_number'] : '',
-                'exp_date' => (isset($params['exp_date'])) ? $params['exp_date'] : '',
+                'exp_date' => (isset($params['expiry_date'])) ? $params['expiry_date'] : '',
                 'card_number' => (isset($params['card_number'])) ? $params['card_number'] : '',
                 'card_cvv' => (isset($params['card_cvv'])) ? $params['card_cvv'] : '',
                 'amount' => (isset($params['amount'])) ? $params['amount'] : ''
@@ -131,28 +143,30 @@ class Checkout{
         return $json;
     }
 
-    public static function requestPayment($client_id, $secret_key, $params){
+    public static function requestPayment($params){
 
-        $access_token = self::requestToken($client_id, $secret_key);
+        $access_token = self::requestToken();
 
         if(!empty($access_token)){
-            $res = self::requestData($client_id, $secret_key, $access_token);
-            $params['wallet_id'] = $res['wallet_id'];
+            $res = self::requestData($access_token);
 
-            if(!isset($res->error)){
-                $check_user_res = self::requestCheckUser($res['access_token'], $params);
+            if(!isset($res['error'])){
+
+                self::$auth_token = $res['access_token'];
+                $params['wallet_id'] = $res['wallet_id'];
+
+                $check_user_res = self::requestCheckUser($params);
                 if(!isset($check_user_res['success']) && !empty($check_user_res['success'])){
-                    return self::requestNewUser($res['access_token'], $params);
+                    return self::requestNewUser($params);
                 }else{
-                    return self::requestExistingUser($res['access_token'], $params);
+                    return self::requestExistingUser($params);
                 }
-                print_r($user_res); die;
             }else{
-                return false;
+                return ['success' => false, 'message' => 'Invalid Request'];
             }
         }
         else{
-            return false;
+            return ['success' => false, 'message' => 'Unauthorized'];
         }
     }
     
