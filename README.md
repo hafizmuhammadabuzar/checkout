@@ -31,7 +31,3 @@ http://sample-project-link.com/repository
 - Open config/app.php add Service Provider in providers array
 - Open .env file add constants Mode, CLIENT_ID, and SECRET_KEY in it
 - Open your controller add "use Quickcard\Checkout\Payment;" or you can make your Facade and "use your-facade-alias"
-
->**Code**\
-> $obj = new Payment($your_client_id, $your_secret_key, $your_mode);
-  $Obj->paymentSubmit($array_payment_fields);

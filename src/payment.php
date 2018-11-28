@@ -6,29 +6,18 @@ use Quickcard\Checkout\Checkout as checkout;
 
 class Payment{
 
-    protected $client_id;
-    protected $secret_key;
-    protected $mode;
+    static protected $client_id;
+    static protected $secret_key;
+    static protected $mode;
 
-    public function __construct($client_id, $secret_key, $mode){
-
-        $this->client_id = $client_id;
-        $this->secret_key = $secret_key;
-        $this->mode = $mode;
-
-        if(empty($this->client_id) && empty($this->secret_key)){
-            return false;
-        }
-    }
-
-    public function requiredParams(){
+    public static function requiredParams(){
 
         return ['phone_number', 'expiry_date', 'card_number', 'card_cvv', 'amount', 'email', 'first_name', 'last_name'];
     }
 
-    public function paymentSubmit($params){
+    public static function paymentSubmit($params){
 
-        $required_fields = $this->requiredParams();
+        $required_fields = self::requiredParams();
 
         $error = array();
         foreach($required_fields as $value){
@@ -39,10 +28,14 @@ class Payment{
 
         if(count($error) > 0){
             return ['success' => false, 'message' => 'All fields required', 'data' => $error];
-        }
+        }else{
+            self::$client_id = env('CLIENT_ID');
+            self::$secret_key = env('SECRET_KEY');
+            self::$mode = env('MODE');
 
-        $obj = new Checkout($this->client_id, $this->secret_key, $this->mode);
-        return checkout::requestPayment($params);
+            $obj = new Checkout(self::$client_id, self::$secret_key, self::$mode);
+            return checkout::requestPayment($params);
+        }
     }
     
 }
