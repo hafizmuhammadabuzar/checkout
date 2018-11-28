@@ -94,7 +94,7 @@ class Checkout{
             CURLOPT_POST => 1,
             CURLOPT_POSTFIELDS => array(
                 'auth_token' => static::$auth_token,
-                'wallet_id' => (isset($params['phone_number'])) ? $params['phone_number'] : '',
+                'wallet_id' => (isset($params['wallet_id'])) ? $params['wallet_id'] : '',
                 'phone_number' => (isset($params['phone_number'])) ? $params['phone_number'] : '',
                 'exp_date' => (isset($params['exp_date'])) ? $params['exp_date'] : '',
                 'card_number' => (isset($params['card_number'])) ? $params['card_number'] : '',
@@ -156,7 +156,8 @@ class Checkout{
                 $params['wallet_id'] = $res['wallet_id'];
 
                 $check_user_res = self::requestCheckUser($params);
-                if(!isset($check_user_res['success']) && !empty($check_user_res['success'])){
+
+                if(isset($check_user_res['error'])){
                     return self::requestNewUser($params);
                 }else{
                     return self::requestExistingUser($params);
