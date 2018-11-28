@@ -8,7 +8,7 @@ Just install the package, add .env file and its ready to use.
 >This is the library required already [composer](https://getcomposer.org/) installed in your machine, Locally or Globally.
 
 **Requirements**
->*PHP >= 5.4*\
+>*PHP >= 7.2*\
 *cURL Extension*\
 *Laravel >= 5.2*
 
