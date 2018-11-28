@@ -41,7 +41,7 @@ class Payment{
             return ['success' => false, 'message' => 'All fields required', 'data' => $error];
         }
 
-        new Checkout($this->client_id, $this->secret_key, $this->mode);
+        $obj = new Checkout($this->client_id, $this->secret_key, $this->mode);
         return checkout::requestPayment($params);
     }
     

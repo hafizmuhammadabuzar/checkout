@@ -15,7 +15,7 @@ class Checkout{
         self::$client_id = $client_id;
         self::$secret_key = $secret_key;
         self::$mode = $mode;
-        self::$mode = ($mode == 'Sandbox') ? 'https://quickcard.herokuapp.com/' : 'https://api.quickcard.me/';
+        self::$END_POINT_URL = ($mode == 'Sandbox') ? 'https://quickcard.herokuapp.com/' : 'https://api.quickcard.me/';
     }
 
     public static function requestToken(){
